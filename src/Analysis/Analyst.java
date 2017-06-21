@@ -6,29 +6,20 @@ import java.util.Iterator;
 
 import RawData.RawDataManager;
 import RawData.RawDataModel;
-import RawData.RawDataModel.TrackData;
-import RoadInfo.RoadInfoModel;
 import RoadInfo.RoadInfoManager;
 
 public class Analyst {
-	public enum TotalInfoType {DEFAULT, TTC_FIRST, SDI_FIRST};
 	private RawDataManager rawDataMGR = null;
 	private RoadInfoManager roadDataMGR = null;
-	private TotalInfoType totalInfoType = TotalInfoType.DEFAULT;
 	private ArrayList<AnalysisDataModel> analysisResult= null;
-	private String resultPath;
 	
 	class AnalysisInfo {
 		AnalysisDataModel defaultInfo;
 	}	
 	
-	public Analyst(RawDataManager rawDataManager, RoadInfoManager roadInfoManager, TotalInfoType type) {
+	public Analyst(RawDataManager rawDataManager, RoadInfoManager roadInfoManager) {
 		rawDataMGR = rawDataManager;
 		roadDataMGR = roadInfoManager;
-		totalInfoType = type;
-	}
-	public void SetReslutCSVPath(String path) {
-		resultPath = path;
 	}
 	public void DoAnalysis() {
 		System.out.printf("####	 START \tAnalyst.DoAnalysis()\n");

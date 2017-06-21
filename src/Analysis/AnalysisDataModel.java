@@ -39,7 +39,7 @@ public class AnalysisDataModel {
 	public double getRoll() 			{ return rawData.getRoll(); }
 	public double getPitch() 			{ return rawData.getPitch(); }
 	public double getAzimouth() 		{ return rawData.getAzimouth(); }
-	public double getINSstatus() 		{ return rawData.getINSstatus(); }
+	public double getINSstatus() 		{ return rawData.getInsStatus(); }
 	public double getSpeed() 			{ return rawData.getSpeed(); }
 	public double getALIGN_RADIUS() 	{ return (baseCarRoadInfo==null)?0:baseCarRoadInfo.getALIGN_RADIUS(); }
 	public double getPROFILE_SLOPE() 	{ return (baseCarRoadInfo==null)?0:baseCarRoadInfo.getPROFILE_SLOPE(); }
@@ -178,7 +178,7 @@ public class AnalysisDataModel {
 		if (this.BASE_ID_L != -1) { 
 	        BASE_ID_F = 99; // Base차량은는 99로 한다.
 	        double SPEED = rawData.getSpeed();
-	        double TARGET_Y = rawData.GetTrackDatas().get(BASE_ID_L).Y;
+	        double TARGET_Y = rawData.getTrackDatas().get(BASE_ID_L).Y;
 	        this.headway = (TARGET_Y+4.7)/(SPEED/3.6);
 		}
 	}
@@ -188,8 +188,8 @@ public class AnalysisDataModel {
          
         // 찾아진 선행 차량이 있을때 
 		double BASE_SPEED = getSpeed(); 										// km 단위
-		double TARGET_Y = rawData.GetTrackDatas().get(BASE_ID_L).Y;
-		double TARGET_SPEED = rawData.getSpeed()/3.6 + rawData.GetTrackDatas().get(BASE_ID_L).RangeRate; // m/s 
+		double TARGET_Y = rawData.getTrackDatas().get(BASE_ID_L).Y;
+		double TARGET_SPEED = rawData.getSpeed()/3.6 + rawData.getTrackDatas().get(BASE_ID_L).RangeRate; // m/s 
 //		System.out.print(rawData.getIndex() + "\t");
 		BASE_AnalysisResult = AnalysisCarInfo(this.baseCarRoadInfo, BASE_SPEED, TARGET_SPEED, TARGET_Y);
 	}
@@ -201,7 +201,7 @@ public class AnalysisDataModel {
 		Iterator<ExtractCarSet> iter = extractCarSetList.iterator();
 		while (iter .hasNext()) {
 			ExtractCarSet carSetData = iter.next();
-			TrackData backCarTrackData = rawData.GetTrackDatas().get(carSetData.backCarTrackIdx);
+			TrackData backCarTrackData = rawData.getTrackDatas().get(carSetData.backCarTrackIdx);
 			Deg2UTM deg2UTM = new Deg2UTM(rawData.getLatitude(), rawData.getLongitude());;
 			UTM utm = new UTM();
 			utm.X = deg2UTM.Easting + backCarTrackData.X;
@@ -211,9 +211,9 @@ public class AnalysisDataModel {
 //				carSetData.roadInfoData = this.baseCarRoadInfo;
 //			}
 //			
-            double BASE_SPEED = rawData.getSpeed() + rawData.GetTrackDatas().get(carSetData.backCarTrackIdx).RangeRate * 3.6;   	// km/h 로 바꿔준다.
-            double TARGET_Y = rawData.GetTrackDatas().get(carSetData.frontCarTrackIdx).Y;
-            double TARGET_SPEED = rawData.getSpeed()/3.6 + rawData.GetTrackDatas().get(carSetData.frontCarTrackIdx).RangeRate; 		// m/s 단위
+            double BASE_SPEED = rawData.getSpeed() + rawData.getTrackDatas().get(carSetData.backCarTrackIdx).RangeRate * 3.6;   	// km/h 로 바꿔준다.
+            double TARGET_Y = rawData.getTrackDatas().get(carSetData.frontCarTrackIdx).Y;
+            double TARGET_SPEED = rawData.getSpeed()/3.6 + rawData.getTrackDatas().get(carSetData.frontCarTrackIdx).RangeRate; 		// m/s 단위
             
             carSetData.analysisResult = AnalysisCarInfo(carSetData.roadInfoData, BASE_SPEED, TARGET_SPEED, TARGET_Y);
 		}
@@ -222,7 +222,7 @@ public class AnalysisDataModel {
 		// HashMap 		Key : lane	,	Value : ArrayList<TrackIdx>
 		HashMap<Integer,ArrayList<Integer>> carSetMap = new HashMap<Integer,ArrayList<Integer>>();
 		int trackIdx = 0;
-		Iterator<TrackData> iter = rawData.GetTrackDatas().iterator();
+		Iterator<TrackData> iter = rawData.getTrackDatas().iterator();
 		while (iter.hasNext()) {
 			TrackData nowTrackData = iter.next();
 			if (nowTrackData.isValid() == false) {
@@ -297,8 +297,8 @@ public class AnalysisDataModel {
 		 
 	    @Override
 	    public int compare(Integer o1, Integer o2) {
-	    	double Y1 = rawData.GetTrackDatas().get(o1).Y;
-	    	double Y2 = rawData.GetTrackDatas().get(o2).Y;
+	    	double Y1 = rawData.getTrackDatas().get(o1).Y;
+	    	double Y2 = rawData.getTrackDatas().get(o2).Y;
 	        return Double.compare(Y1, Y2);
 	    }
 	 
@@ -306,7 +306,7 @@ public class AnalysisDataModel {
 	public String GetDefaultInfoString() {
 		String str = rawData.getIndex() + "," + rawData.getTime() + "," +  rawData.getWeek() + "," + rawData.getGpsTime() + "," 
 				+ rawData.getLatitude() + "," + rawData.getLongitude() + "," + rawData.getDistance() + "," + rawData.getHeight() + "," + rawData.getNorthVel() + "," + rawData.getEastVel() 
-				+ "," + rawData.getUpVel()  + "," + rawData.getRoll() + "," + rawData.getPitch() + "," + rawData.getAzimouth() + "," + rawData.getINSstatus()
+				+ "," + rawData.getUpVel()  + "," + rawData.getRoll() + "," + rawData.getPitch() + "," + rawData.getAzimouth() + "," + rawData.getInsStatus()
 				+ "," + rawData.getSpeed() + "," + this.getALIGN_RADIUS() + "," + this.getPROFILE_SLOPE() + "," + this.getCROSS_SLOPE_UP() + "," + this.getHEADWAY();
 		return str;
 	}
@@ -315,9 +315,6 @@ public class AnalysisDataModel {
 	public String GetTotalInfoString() {
 		if (TOT_AnalysisResult == null)
 			return "";
-		if (TOT_AnalysisResult.SL >0 ){
-			int k =1;
-		}
 		String str = this.TOT_CD + "," + TOT_AnalysisResult.SL  + "," + TOT_AnalysisResult.SS + "," + TOT_AnalysisResult.SDI + "," + TOT_AnalysisResult.TTC + "," + TOT_AnalysisResult.TOT_SAFE + "," + this.TOT_SECTION;
 		return str;
 	}

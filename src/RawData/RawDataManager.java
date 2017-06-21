@@ -11,7 +11,7 @@ public class RawDataManager {
 		datas = GetRawDataReader(type).Read(string);
 	}
 
-	private IRawDataReader GetRawDataReader(TYPE type) {
+	private RawDataReader GetRawDataReader(TYPE type) {
 		if (type == TYPE.A)
 			return new RawDataReaderA();
 		if (type == TYPE.B)

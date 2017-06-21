@@ -11,7 +11,7 @@ public class Main {
 		System.out.printf("############## START Analysis ##############\n");
 		RawDataManager rawDataManager = new RawDataManager(RawDataFile, RawDataManager.TYPE.A);
 		RoadInfoManager roadInfoManager = new RoadInfoManager(AnalysisDataFile);
-		Analyst analyst = new Analyst(rawDataManager, roadInfoManager, Analyst.TotalInfoType.DEFAULT);
+		Analyst analyst = new Analyst(rawDataManager, roadInfoManager);
 		analyst.DoAnalysis();
 		analyst.WriteCSV(SaveFile);
 		System.out.printf("############## END Analysis ##############\n");

@@ -1,20 +1,16 @@
 package Utility;
 
-import java.util.Iterator;
-
 import RawData.RawDataModel;
 import RawData.RawDataModel.TrackData;
-import Utility.Util.UTM;
 
 public class Util {
 
 	public static int GetBaseTargetTrackIdx(RawDataModel rawData) {
 		int BASE_LANE = 2;
-		Iterator<TrackData> iter = rawData.GetTrackDatas().iterator();
 		TrackData minTrackData = null; 
 		int minTrackIdx = -1;
-		for(int idx = 0 ; idx < rawData.GetTrackDatas().size() ; idx ++) {
-			TrackData nowTrackData = rawData.GetTrackDatas().get(idx);
+		for(int idx = 0 ; idx < rawData.getTrackDatas().size() ; idx ++) {
+			TrackData nowTrackData = rawData.getTrackDatas().get(idx);
 			if (GetLaneNumber(nowTrackData.X) != BASE_LANE) {
 				continue;
 			}
