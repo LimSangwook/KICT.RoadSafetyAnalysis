@@ -1,5 +1,6 @@
 package RoadInfo;
 
+import java.awt.geom.Point2D;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -10,32 +11,32 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.jhlabs.map.proj.Projection;
+import com.jhlabs.map.proj.ProjectionFactory;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.index.ItemVisitor;
 import com.vividsolutions.jts.index.quadtree.Quadtree;
 
-import Utility.Util.UTM;
-
 public class RoadInfoManager {
 	private static int SKIP_LINE = 1; 
-	ArrayList<RoadInfoModel> datas;
-	HashMap<Double, RoadInfoModel> GPSTimeMap;
-	Quadtree spIndex;
-	public RoadInfoManager(String path) throws IOException {
+	
+	ArrayList<RoadInfoModel> datas = new ArrayList<RoadInfoModel>();
+	HashMap<Double, RoadInfoModel> GPSTimeMap = new HashMap<Double, RoadInfoModel>();
+	Quadtree spIndex = new Quadtree();
+	
+	public void Add(String path) throws IOException {
 		Read(path);
 	}
 
 	private void Read(String path) throws IOException {
 		System.out.printf("####\t START \tRoadInfoManager.Read()\n");
 		BufferedReader in = new BufferedReader(new FileReader(path));
-		datas = new ArrayList<RoadInfoModel>();
 		String s;
 		int lineIdx = 0;
 		int dupSecondsCnt = 0;
+		int validCnt = 0;
 		RoadInfoModel preData = null;
-		GPSTimeMap = new HashMap<Double, RoadInfoModel>();
-		spIndex = new Quadtree();
 		while ((s = in.readLine()) != null) {
 			lineIdx ++;
 			if (lineIdx <= SKIP_LINE) {
@@ -51,6 +52,7 @@ public class RoadInfoManager {
 					dupSecondsCnt++;
 					continue;
 				}				
+				validCnt++;
 				datas.add(newData);
 				GPSTimeMap.put(newData.getSECONDS(), newData);
 				Coordinate pt = new Coordinate(newData.getX(), newData.getY());
@@ -62,7 +64,8 @@ public class RoadInfoManager {
 			}
 		}
 		in.close();
-		System.out.printf("####\t END \tRoadInfoManager.Read() - ReadLines : " + (datas.size() + dupSecondsCnt) + ", ValidData : " + datas.size() + " , Duplicated SECONDS Data : " + dupSecondsCnt + "\n");
+		System.out.printf("\t ReadLines : " + (lineIdx -SKIP_LINE ) + ", now ValidData : " + validCnt + " , Duplicated SECONDS Data : " + dupSecondsCnt + "\n");
+		System.out.printf("####\t END \tRoadInfoManager.Read() - RoadInfo Data Size : " + datas.size() + "\n");
 	}
 
 	private RoadInfoModel Parse(String line) throws Exception {
@@ -74,32 +77,49 @@ public class RoadInfoManager {
 		double seconds = Double.parseDouble(token[1]);
 		double x = Double.parseDouble(token[3]);
 		double y = Double.parseDouble(token[4]);
-		double z = Double.parseDouble(token[5]);
 		double ALIGN_RADIUS = Double.parseDouble(token[38]);
 		double PROFILE_SLOPE = Double.parseDouble(token[41]);
 		double CROSS_SLOPE_UP = Double.parseDouble(token[46]);
-		RoadInfoModel newData = new RoadInfoModel(index, seconds, x, y, z, ALIGN_RADIUS, PROFILE_SLOPE, CROSS_SLOPE_UP);
+		RoadInfoModel newData = new RoadInfoModel(index, seconds, x, y, ALIGN_RADIUS, PROFILE_SLOPE, CROSS_SLOPE_UP);
 		return newData;
 	}
-
 
 	public RoadInfoModel GetRoadInfoFromGPSTime(double gpsTime) {
 		return GPSTimeMap.get(gpsTime);
 	}
 
-	public RoadInfoModel GetRoadInfoFromTM(UTM utm) {
-		for (int COVERAGE = 1; COVERAGE < 5 ; COVERAGE++ ) {
-			double X = utm.X - 122919.823;
-			double Y = utm.Y - 3607851.602;
-			
-			Coordinate pt1 = new Coordinate(X - COVERAGE, Y - COVERAGE); //UTM to TM
-			Coordinate pt2 = new Coordinate(X + COVERAGE, Y + COVERAGE); //UTM to TM
-			Envelope searchEnv = new Envelope(pt1, pt2);
-			List<RoadInfoModel> list = spIndex.query(searchEnv);
-			if (list.size() > 0) {
-				return list.get(0);
-			}
-		}
+	public RoadInfoModel GetRoadInfoFromTM(double lat, double lon) {
+//		
+//		String[] proj4_w=new String[]{
+//				"+proj=tmerc", 
+//				"+lat_0=38N", 
+//				"+lon_0=127.00289027777777777776E",
+//				"+ellps=WGS84", 
+//				"+units=m", 
+//				"+x_0=200000",
+//				"+y_0=500000",
+//				"+k=1.0"
+//				};
+//
+//		Point2D.Double srcProject = new Point2D.Double(lat, lon);;
+//		Point2D.Double dstProject = null;
+//		Projection proj = ProjectionFactory.fromPROJ4Specification(proj4_w);
+//		
+//		new Point2D.Double(132, 37);
+//		dstProject=proj.transform(srcProject, new Point2D.Double());
+//
+//		for (int COVERAGE = 0; COVERAGE < 5 ; COVERAGE++ ) {
+//			double X = dstProject.x;
+//			double Y = dstProject.y;
+//			
+//			Coordinate pt1 = new Coordinate(X - COVERAGE, Y - COVERAGE); //UTM to TM
+//			Coordinate pt2 = new Coordinate(X + COVERAGE, Y + COVERAGE); //UTM to TM
+//			Envelope searchEnv = new Envelope(pt1, pt2);
+//			List<RoadInfoModel> list = spIndex.query(searchEnv);
+//			if (list.size() > 0) {
+//				return list.get(0);
+//			}
+//		}
 		return null;
 	}
 }

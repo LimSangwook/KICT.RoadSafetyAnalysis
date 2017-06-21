@@ -63,8 +63,7 @@ public class ICDataManager {
 		int idx = 0;
 		while (iter.hasNext()) {
 			ICData nowICData = iter.next();
-	        double distance = Math.sqrt(Math.pow(Math.abs(nowICData.Latitude - latitude), 2) + 
-	        		Math.pow(Math.abs(nowICData.Longitude - longitude), 2));
+	        double distance = Util.distance(nowICData.Latitude, nowICData.Longitude, latitude, longitude);
 			
 	        if (minDistance == -1) {
 	            minDistance = distance;
@@ -78,8 +77,42 @@ public class ICDataManager {
 	        }
 	        idx ++;
 		}
+		
+		int preICIdx = -1, nextICIdx = -1;
+		double preDistanceOfNow, nextDistanceOfNow, preDistanceOfMidIC, nextDistanceOfMidIC;
+		if (minDistanceIdx == 0) {
+			preICIdx = ICDataList.size() - 1;
+		} else {
+			preICIdx = minDistanceIdx - 1;
+		}
+		
+		if (minDistanceIdx == ICDataList.size() - 1) {
+			nextICIdx = 0;
+		} else {
+			nextICIdx = minDistanceIdx + 1;
+		}
 
-		String nearICName = ICDataList.get(minDistanceIdx).ICName;
+		preDistanceOfNow = Util.distance(ICDataList.get(preICIdx).Latitude, ICDataList.get(preICIdx).Longitude, latitude, longitude);
+		nextDistanceOfNow = Util.distance(ICDataList.get(nextICIdx).Latitude, ICDataList.get(nextICIdx).Longitude, latitude, longitude);
+		preDistanceOfMidIC = Util.distance(ICDataList.get(preICIdx).Latitude, ICDataList.get(preICIdx).Longitude, ICDataList.get(minDistanceIdx).Latitude, ICDataList.get(minDistanceIdx).Longitude);
+		nextDistanceOfMidIC = Util.distance(ICDataList.get(nextICIdx).Latitude, ICDataList.get(nextICIdx).Longitude, ICDataList.get(minDistanceIdx).Latitude, ICDataList.get(minDistanceIdx).Longitude);
+
+		String nearICName = "";
+		if (preDistanceOfMidIC > preDistanceOfNow) {
+			nearICName = ICDataList.get(preICIdx).ICName + " ~ " + ICDataList.get(minDistanceIdx).ICName;;
+		} else if (nextDistanceOfMidIC > nextDistanceOfNow) {
+			nearICName = ICDataList.get(minDistanceIdx).ICName + " ~ " + ICDataList.get(nextICIdx).ICName;
+		} else {
+			double preM = Math.abs(preDistanceOfMidIC - preDistanceOfNow);
+			double nextM = Math.abs(nextDistanceOfMidIC - nextDistanceOfNow);
+			if (preM > nextM) {
+				nearICName = ICDataList.get(minDistanceIdx).ICName + " ~ " + ICDataList.get(nextICIdx).ICName;
+			} else {
+				nearICName = ICDataList.get(preICIdx).ICName + " ~ " + ICDataList.get(minDistanceIdx).ICName;;
+				
+			}
+		}
+		 
 		return nearICName;
 	}
 }

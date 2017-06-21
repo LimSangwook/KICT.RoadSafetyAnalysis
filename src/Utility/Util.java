@@ -5,13 +5,12 @@ import RawData.RawDataModel.TrackData;
 
 public class Util {
 
-	public static int GetBaseTargetTrackIdx(RawDataModel rawData) {
-		int BASE_LANE = 2;
+	public static int getBaseTargetTrackIdx(RawDataModel rawData) {
 		TrackData minTrackData = null; 
 		int minTrackIdx = -1;
 		for(int idx = 0 ; idx < rawData.getTrackDatas().size() ; idx ++) {
 			TrackData nowTrackData = rawData.getTrackDatas().get(idx);
-			if (GetLaneNumber(nowTrackData.X) != BASE_LANE) {
+			if (getRelativeLaneNumber(nowTrackData.X) != 0) {
 				continue;
 			}
 			if (nowTrackData.isValid() == false) {
@@ -29,36 +28,18 @@ public class Util {
 		}
 		return minTrackIdx;
 	}
-	public static class UTM {
-		public double X;
-		public double Y;
-		int Zone;
-	}
-
-	public static int GetLaneNumber(double valX) {
-		int output = -1;
-        if (valX < -5.25)
-            output = -1;
-        else if (valX <= -1.75)
-            output = 1;
-        else if (valX < 1.75) 
-            output = 2;
-        else if (valX < 5.25) 
-            output = 3;
-        else if (valX < 8.75) 
-            output = 4;
-        else if (valX < 12.25) 
-            output = 5;
-        else if (valX < 15.75) 
-            output = 6;
-		return output;
+	
+	public static int getRelativeLaneNumber(double valX) {
+		double laneWidth = 3;
+		int lane = (int)((valX + laneWidth / 2) / laneWidth);
+		return lane;
 	}
 	public static String GetSectionName(double latitude, double longitude) {
 		return ICDataManager.getInstance().GetSectionName(latitude, longitude);
 	}
 	
-	public static double distance(double lat1, double lon1, double lat2, double lon2, String unit) {
-		return DistanceCalculator.distance(lat1, lon1, lat2, lon2, unit);
+	public static double distance(double lat1, double lon1, double lat2, double lon2) {
+		return DistanceCalculator.distance(lat1, lon1, lat2, lon2, "K")*1000;
  	}
 	public static class Deg2UTM
 	{
