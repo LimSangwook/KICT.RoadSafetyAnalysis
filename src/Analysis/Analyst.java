@@ -30,9 +30,7 @@ public class Analyst {
 		}
 		
 		analysisResult = new ArrayList<AnalysisDataModel>();
-		Iterator<RawDataModel> it = rawDataMGR.GetIeterator();
-		while (it.hasNext()) {
-			RawDataModel rawData = it.next();
+		for (RawDataModel rawData : rawDataMGR.getDatas()) {
 			AnalysisDataModel analysisDataModel = new AnalysisDataModel(rawData, roadInfoMGR);
 			analysisResult.add(analysisDataModel);
 		}

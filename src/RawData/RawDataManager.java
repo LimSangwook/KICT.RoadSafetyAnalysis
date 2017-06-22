@@ -3,7 +3,6 @@ package RawData;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.ArrayList;
-import java.util.Iterator;
 
 import DataController.RawDataControllr;
 import Utility.Util;
@@ -11,6 +10,10 @@ import Utility.Util;
 public class RawDataManager {
 	public enum TYPE {A, B};
 	private ArrayList<RawDataModel> datas = new ArrayList<RawDataModel>();
+
+	public ArrayList<RawDataModel> getDatas() {
+		return datas;
+	}
 
 	public void Add(String path, RawDataControllr dataTypeController) throws Exception {
 		Read(path, dataTypeController);
@@ -62,8 +65,4 @@ public class RawDataManager {
 		System.out.printf("\t ReadLines : " + lineIdx + "\tSkipLines : " + dataTypeController.getSkipLines() + "\tValidData : " + validCnt + "\tParseError : " + parseErrorCnt + "\tDuplicated GPSTime : " + dupGPSTimeCnt + "\tExceedSpeed("+VALID_SPEED+") : " + exceedSpeedCnt + "\n");
 		System.out.printf("####\t END \tRawDataReader.Read() - RawData Data Size : " + datas.size() + "\n");
 	}
-	public Iterator<RawDataModel> GetIeterator() {
-		return datas.iterator();
-	}
-
 }

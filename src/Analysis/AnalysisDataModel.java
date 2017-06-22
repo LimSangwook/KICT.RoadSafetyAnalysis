@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
 
 import RawData.RawDataModel;
 import RawData.RawDataModel.TrackData;
@@ -161,9 +160,7 @@ public class AnalysisDataModel {
 		if (this.baseCarRoadInfo == null)
 			return;
 		extractCarSetList = GetExtractCarSetList();
-		Iterator<ExtractCarSet> iter = extractCarSetList.iterator();
-		while (iter .hasNext()) {
-			ExtractCarSet carSetData = iter.next();
+		for (ExtractCarSet carSetData : extractCarSetList) {
 //			TrackData backCarTrackData = rawData.getTrackDatas().get(carSetData.backCarTrackIdx);
 //			Deg2UTM deg2UTM = new Deg2UTM(rawData.getLatitude(), rawData.getLongitude());;
 //			UTM utm = new UTM();
@@ -185,9 +182,7 @@ public class AnalysisDataModel {
 		// HashMap 		Key : lane	,	Value : ArrayList<TrackIdx>
 		HashMap<Integer,ArrayList<Integer>> carSetMap = new HashMap<Integer,ArrayList<Integer>>();
 		int trackIdx = 0;
-		Iterator<TrackData> iter = rawData.getTrackDatas().iterator();
-		while (iter.hasNext()) {
-			TrackData nowTrackData = iter.next();
+		for (TrackData nowTrackData : rawData.getTrackDatas()) {
 			if (nowTrackData.isValid() == false) {
 				trackIdx++;
 				continue;
@@ -204,10 +199,9 @@ public class AnalysisDataModel {
 		}
 		
         //2개 이상 모인것은 쌍으로 추출해 냄
-		Iterator<Integer> keyIter = carSetMap.keySet().iterator();
 		ArrayList<ExtractCarSet> carSetList = new ArrayList<ExtractCarSet>();
-		while(keyIter.hasNext()) {
-			ArrayList<Integer> mapData = carSetMap.get(keyIter.next());
+		for (Integer key : carSetMap.keySet()) {
+			ArrayList<Integer> mapData = carSetMap.get(key);
 			if (mapData.size() >= 2) {
 				Descending descending = new Descending();
 		        Collections.sort(mapData, descending);
@@ -237,9 +231,7 @@ public class AnalysisDataModel {
 	        	System.out.println("########");
 	        // ExtractCarSet 처리;
 	        TOT_CD += extractCarSetList.size();
-	        Iterator<ExtractCarSet> extractIter = extractCarSetList.iterator();
-	        while (extractIter.hasNext()) {
-	        	ExtractCarSet extractCarSet = extractIter.next();
+	        for (ExtractCarSet extractCarSet : extractCarSetList) {
 	            TOT_AnalysisResult.SL += extractCarSet.analysisResult.SL;
 	            TOT_AnalysisResult.SS += extractCarSet.analysisResult.SS;
 	            TOT_AnalysisResult.SDI += extractCarSet.analysisResult.SDI;

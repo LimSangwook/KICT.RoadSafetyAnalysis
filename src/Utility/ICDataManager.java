@@ -1,7 +1,6 @@
 package Utility;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 
 public class ICDataManager {
 	private static ICDataManager instance = new ICDataManager();
@@ -59,10 +58,8 @@ public class ICDataManager {
 	public String GetSectionName(double latitude, double longitude) {
 		double minDistance = -1;
 		int minDistanceIdx = -1;
-		Iterator<ICData> iter = ICDataList.iterator();
 		int idx = 0;
-		while (iter.hasNext()) {
-			ICData nowICData = iter.next();
+		for (ICData nowICData : ICDataList) {
 	        double distance = Util.distance(nowICData.Latitude, nowICData.Longitude, latitude, longitude);
 			
 	        if (minDistance == -1) {
