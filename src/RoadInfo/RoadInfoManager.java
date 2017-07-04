@@ -1,29 +1,30 @@
 package RoadInfo;
 
-import java.awt.geom.Point2D;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.index.ItemVisitor;
-import com.vividsolutions.jts.index.quadtree.Quadtree;
+import com.vividsolutions.jts.index.strtree.STRtree;
+
+import DataController.RawDataControllr;
+import RawData.RawDataManager;
+import RawData.RawDataModel;
+import Utility.Util;
 
 public class RoadInfoManager {
 	private static int SKIP_LINE = 1; 
 	
 	ArrayList<RoadInfoModel> datas = new ArrayList<RoadInfoModel>();
 	HashMap<Double, RoadInfoModel> GPSTimeMap = new HashMap<Double, RoadInfoModel>();
-	Quadtree spIndex = new Quadtree();
+	STRtree spIndex = new STRtree();
+	RawDataManager locationDataManager = new RawDataManager();
 	
-	public void Add(String path) throws IOException {
+	public void add(String path) throws IOException {
 		Read(path);
 	}
 
@@ -53,9 +54,6 @@ public class RoadInfoManager {
 				validCnt++;
 				datas.add(newData);
 				GPSTimeMap.put(newData.getSECONDS(), newData);
-				Coordinate pt = new Coordinate(newData.getX(), newData.getY());
-				spIndex.insert(new Envelope(pt), newData);
-				
 				preData = newData;
 			} catch( Exception e) {
 				System.out.printf("File Parse Error - RoadInfoManager.Parse() (Line "+lineIdx+") : " + s + "\n");
@@ -85,39 +83,45 @@ public class RoadInfoManager {
 	public RoadInfoModel GetRoadInfoFromGPSTime(double gpsTime) {
 		return GPSTimeMap.get(gpsTime);
 	}
-
-	public RoadInfoModel GetRoadInfoFromTM(double lat, double lon) {
-//		
-//		String[] proj4_w=new String[]{
-//				"+proj=tmerc", 
-//				"+lat_0=38N", 
-//				"+lon_0=127.00289027777777777776E",
-//				"+ellps=WGS84", 
-//				"+units=m", 
-//				"+x_0=200000",
-//				"+y_0=500000",
-//				"+k=1.0"
-//				};
-//
-//		Point2D.Double srcProject = new Point2D.Double(lat, lon);;
-//		Point2D.Double dstProject = null;
-//		Projection proj = ProjectionFactory.fromPROJ4Specification(proj4_w);
-//		
-//		new Point2D.Double(132, 37);
-//		dstProject=proj.transform(srcProject, new Point2D.Double());
-//
-//		for (int COVERAGE = 0; COVERAGE < 5 ; COVERAGE++ ) {
-//			double X = dstProject.x;
-//			double Y = dstProject.y;
-//			
-//			Coordinate pt1 = new Coordinate(X - COVERAGE, Y - COVERAGE); //UTM to TM
-//			Coordinate pt2 = new Coordinate(X + COVERAGE, Y + COVERAGE); //UTM to TM
-//			Envelope searchEnv = new Envelope(pt1, pt2);
-//			List<RoadInfoModel> list = spIndex.query(searchEnv);
-//			if (list.size() > 0) {
-//				return list.get(0);
-//			}
-//		}
+	public RoadInfoModel GetRoadInfoFromGPSLocation(double lat, double lon) {
+		Util.Deg2UTM deg2UTM = new Util.Deg2UTM(lat, lon);
+		return GetRoadInfoFromUTM(deg2UTM.Easting, deg2UTM.Northing);
+	}
+	public RoadInfoModel GetRoadInfoFromUTM(double X, double Y) {
+		for (int COVERAGE = 1; COVERAGE < 2 ; COVERAGE++ ) {
+			Coordinate pt1 = new Coordinate(X - COVERAGE, Y - COVERAGE); //UTM to TM
+			Coordinate pt2 = new Coordinate(X + COVERAGE, Y + COVERAGE); //UTM to TM
+			Envelope searchEnv = new Envelope(pt1, pt2);
+			@SuppressWarnings("unchecked")
+			List<RoadInfoModel> list = spIndex.query(searchEnv);
+			if (list.size() > 0) {
+//				System.out.println("idx : " + list.get(0).getIndex() + "\tX : " + X + " \t Y : " + Y + "\tInfoX : " + list.get(0).getUTM_X() + "\tInfoY : " + list.get(0).getUTM_Y());
+				return list.get(0);
+			}
+		}
 		return null;
 	}
+
+	public void addLocationData(String string, RawDataControllr rdControllerA) throws Exception {
+		locationDataManager.add(string, rdControllerA);
+	}
+
+	public void syncLocationData() {
+		for (RawDataModel locationData : locationDataManager.getDatas()) {
+			RoadInfoModel roadInfoData = GPSTimeMap.get(locationData.getGpsTime());
+			if (roadInfoData != null) {
+				roadInfoData.setLatitude(locationData.getLatitude());
+				roadInfoData.setLongitude(locationData.getLongitude());
+				Util.Deg2UTM deg2UTM = new Util.Deg2UTM(locationData.getLatitude(), locationData.getLongitude());
+				roadInfoData.setUTM_X(deg2UTM.Easting);
+				roadInfoData.setUTM_Y(deg2UTM.Northing);
+				Coordinate pt = new Coordinate(deg2UTM.Easting, deg2UTM.Northing);
+				spIndex.insert(new Envelope(pt), roadInfoData);
+			}
+		}
+		// TODO Auto-generated method stub
+		
+	}
+
+
 }

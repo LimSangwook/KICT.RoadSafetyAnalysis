@@ -15,7 +15,7 @@ public class RawDataModel {
 	private double upVel;
 	private double roll;
 	private double pitch;
-	private double azimouth;
+	private double azimouth = -9999999;
 	private double insStatus;
 	private double speed;
 	private double distance = -1;

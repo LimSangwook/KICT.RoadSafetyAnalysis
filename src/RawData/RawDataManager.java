@@ -15,7 +15,7 @@ public class RawDataManager {
 		return datas;
 	}
 
-	public void Add(String path, RawDataControllr dataTypeController) throws Exception {
+	public void add(String path, RawDataControllr dataTypeController) throws Exception {
 		Read(path, dataTypeController);
 
 	}

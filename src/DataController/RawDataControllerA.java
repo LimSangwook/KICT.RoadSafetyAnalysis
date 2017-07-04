@@ -3,8 +3,8 @@ package DataController;
 import java.util.Iterator;
 
 import Analysis.AnalysisDataModel;
-import Analysis.AnalysisDataModel.AnalysisResult;
-import Analysis.AnalysisDataModel.ExtractCarSet;
+import Analysis.AnalysisResult;
+import Analysis.ExtractCarSet;
 import RawData.RawDataModel;
 
 public class RawDataControllerA extends RawDataControllr {
@@ -89,9 +89,9 @@ public class RawDataControllerA extends RawDataControllr {
 		AnalysisResult TOT_AnalysisResult = data.getTOT_AnalysisResult();
 		if (TOT_AnalysisResult != null) {
 			return data.getTOT_CD() 
-					+ "," + TOT_AnalysisResult.getSL() + "," + TOT_AnalysisResult.getSS() 
-					+ "," + TOT_AnalysisResult.getSDI()+ "," + TOT_AnalysisResult.getTTC() 
-					+ "," + TOT_AnalysisResult.getTOT_SAFE() + "," + data.getTOT_SECTION();
+					+ "," + TOT_AnalysisResult.SL + "," + TOT_AnalysisResult.SS 
+					+ "," + TOT_AnalysisResult.SDI+ "," + TOT_AnalysisResult.TTC 
+					+ "," + TOT_AnalysisResult.TOT_SAFE + "," + data.getTOT_SECTION();
 		} else {
 			return data.getTOT_CD() + ",-1,-1,-1,-1,-1," + data.getTOT_SECTION();
 		}
@@ -105,8 +105,8 @@ public class RawDataControllerA extends RawDataControllr {
 		if (baseResult == null) {
 			return "0,0,0,0,0";
 		} else {
-			return data.getBASE_ID_F() + "," + data.getBASE_ID_L() + "," + baseResult.getSD_F()
-					+ "," + baseResult.getSD_L() + "," + baseResult.getTTC_T();
+			return data.getBASE_ID_F() + "," + data.getBASE_ID_L() + "," + baseResult.SD_F
+					+ "," + baseResult.SD_L + "," + baseResult.TTC_T;
 		}
 	}
 
@@ -123,9 +123,10 @@ public class RawDataControllerA extends RawDataControllr {
 		while (iter.hasNext()) {
 			ExtractCarSet dataSet = iter.next();
 			str.append(isFirst ? "" : ",").append(dataSet.getBackCarTrackIdx())
-				.append("," + dataSet.getAnalysisResult().getSD_F())
-				.append("," + dataSet.getAnalysisResult().getSD_L())
-				.append("," + dataSet.getAnalysisResult().getTTC_T());
+				.append("," + dataSet.getFrontCarTrackIdx())
+				.append("," + dataSet.getAnalysisResult().SD_F)
+				.append("," + dataSet.getAnalysisResult().SD_L)
+				.append("," + dataSet.getAnalysisResult().TTC_T);
 			isFirst=false;
 		}
 		return str.toString();
