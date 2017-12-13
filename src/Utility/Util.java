@@ -1,11 +1,14 @@
 package Utility;
 
-import RawData.RawDataModel;
-import RawData.RawDataModel.TrackData;
+import java.util.ArrayList;
+import java.util.List;
+
+import RadarData.RadarDataModel;
+import RadarData.RadarDataModel.TrackData;
 
 public class Util {
 
-	public static int getBaseTargetTrackIdx(RawDataModel rawData) {
+	public static int getBaseTargetTrackIdx(RadarDataModel rawData) {
 		TrackData minTrackData = null; 
 		int minTrackIdx = -1;
 		for(int idx = 0 ; idx < rawData.getTrackDatas().size() ; idx ++) {
@@ -29,11 +32,27 @@ public class Util {
 		return minTrackIdx;
 	}
 	
+	public static ArrayList<Integer> getBaseTargetTrackIdxList(RadarDataModel rawData) {
+		ArrayList<Integer> baseTargetTrackIdxList = new ArrayList<Integer>();
+		for(int idx = 0 ; idx < rawData.getTrackDatas().size() ; idx ++) {
+			TrackData nowTrackData = rawData.getTrackDatas().get(idx);
+			if (getRelativeLaneNumber(nowTrackData.X) != 0) {
+				continue;
+			}
+			if (nowTrackData.isValid() == false) {
+				continue;
+			}
+			baseTargetTrackIdxList.add(idx);
+		}
+		return baseTargetTrackIdxList;
+	}
+	
 	public static int getRelativeLaneNumber(double valX) {
 		double laneWidth = 3;
 		int lane = (int)((valX + laneWidth / 2) / laneWidth);
 		return lane;
 	}
+	
 	public static String GetSectionName(double latitude, double longitude) {
 		return ICDataManager.getInstance().GetSectionName(latitude, longitude);
 	}
@@ -41,8 +60,8 @@ public class Util {
 	public static double distance(double lat1, double lon1, double lat2, double lon2) {
 		return DistanceCalculator.distance(lat1, lon1, lat2, lon2, "K")*1000;
  	}
-	public static class Deg2UTM
-	{
+	
+	public static class Deg2UTM	{
 	    public double Easting;
 	    public double Northing;
 	    int Zone;

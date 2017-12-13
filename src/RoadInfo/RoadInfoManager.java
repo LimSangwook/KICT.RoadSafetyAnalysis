@@ -11,9 +11,10 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.index.strtree.STRtree;
 
-import DataController.RawDataControllr;
-import RawData.RawDataManager;
-import RawData.RawDataModel;
+import RadarData.RadarDataManager;
+import RadarData.RadarDataModel;
+import RadarData.Controller.RadarDataController;
+import RadarData.Controller.RadarDataController.TYPE;
 import Utility.Util;
 
 public class RoadInfoManager {
@@ -22,7 +23,7 @@ public class RoadInfoManager {
 	ArrayList<RoadInfoModel> datas = new ArrayList<RoadInfoModel>();
 	HashMap<Double, RoadInfoModel> GPSTimeMap = new HashMap<Double, RoadInfoModel>();
 	STRtree spIndex = new STRtree();
-	RawDataManager locationDataManager = new RawDataManager();
+	RadarDataManager locationDataManager = new RadarDataManager();
 	
 	public void add(String path) throws IOException {
 		Read(path);
@@ -102,12 +103,13 @@ public class RoadInfoManager {
 		return null;
 	}
 
-	public void addLocationData(String string, RawDataControllr rdControllerA) throws Exception {
-		locationDataManager.add(string, rdControllerA);
+	public void addLocationData(String string, TYPE controllerType) throws Exception {
+		locationDataManager.add(string, controllerType);
 	}
 
+	// GPS Time 기반으로 위치를 맞춤  
 	public void syncLocationData() {
-		for (RawDataModel locationData : locationDataManager.getDatas()) {
+		for (RadarDataModel locationData : locationDataManager.getDatas()) {
 			RoadInfoModel roadInfoData = GPSTimeMap.get(locationData.getGpsTime());
 			if (roadInfoData != null) {
 				roadInfoData.setLatitude(locationData.getLatitude());

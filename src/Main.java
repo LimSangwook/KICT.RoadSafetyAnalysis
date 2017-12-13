@@ -1,36 +1,33 @@
-import Analysis.Analyst;
-import DataController.RawDataControllr;
-import RawData.RawDataManager;
+import Analysis.AnalysisManager;
+import Analysis.AnalysisManager.BaseTargetType;
+import Analysis.Formatter.DefaultFormatter;
+import RadarData.RadarDataManager;
+import RadarData.Controller.RadarDataController;
 import RoadInfo.RoadInfoManager;
 
 public class Main {
 	public static void main(String[] args) throws Exception {
 		System.out.printf("############## START Analysis ##############\n");
 
-		RawDataControllr rdControllerA = RawDataControllr.Create(RawDataControllr.TYPE.A);
-		RawDataControllr rdControllerB = RawDataControllr.Create(RawDataControllr.TYPE.B);
-		RawDataManager rawDataManager = new RawDataManager();
-		rawDataManager.add("/Users/iswook/Documents/KICT/5Hz_170510_140420_A.csv", rdControllerB);
-		rawDataManager.add("/Users/iswook/Documents/KICT/5Hz_170510_142420_A.csv", rdControllerB);
-		rawDataManager.add("/Users/iswook/Documents/KICT/5Hz_170510_154655_A.csv", rdControllerB);
-//		rawDataManager.add("/Users/iswook/Documents/KICT/01_radar.csv", rdControllerA);
-//		rawDataManager.add("/Users/iswook/Documents/KICT/02_radar.csv", rdControllerA);
-//		rawDataManager.add("/Users/iswook/Documents/KICT/03_radar.csv", rdControllerA);
+		RadarDataManager radarDataManager = new RadarDataManager();
+		radarDataManager.add("./Data/RadarA_Type/01_radar.csv", RadarDataController.TYPE.A);
+		radarDataManager.add("./Data/RadarA_Type/02_radar.csv", RadarDataController.TYPE.A);
+		radarDataManager.add("./Data/RadarA_Type/03_radar.csv", RadarDataController.TYPE.A);
 
 		RoadInfoManager roadInfoManager = new RoadInfoManager();
-		roadInfoManager.add("/Users/iswook/Documents/KICT/01_an.csv");
-		roadInfoManager.add("/Users/iswook/Documents/KICT/02_an.csv");
-		roadInfoManager.add("/Users/iswook/Documents/KICT/03_an.csv");
-		// UTM 좌표를 알기 위해... 
-		roadInfoManager.addLocationData("/Users/iswook/Documents/KICT/01_radar.csv", rdControllerA);
-		roadInfoManager.addLocationData("/Users/iswook/Documents/KICT/02_radar.csv", rdControllerA);
-		roadInfoManager.addLocationData("/Users/iswook/Documents/KICT/03_radar.csv", rdControllerA);
-		roadInfoManager.syncLocationData();
+		roadInfoManager.add("./Data/AN/01_an.csv");
+		roadInfoManager.add("./Data/AN/02_an.csv");
+		roadInfoManager.add("./Data/AN/03_an.csv");
 		
+		// UTM 좌표를 알기 위해... 
+//		roadInfoManager.addLocationData("./Data/RadarA_Type/01_radar.csv", RadarDataController.TYPE.A);
+//		roadInfoManager.addLocationData("./Data/RadarA_Type/02_radar.csv", RadarDataController.TYPE.A);
+//		roadInfoManager.addLocationData("./Data/RadarA_Type/03_radar.csv", RadarDataController.TYPE.A);
+//		roadInfoManager.syncLocationData();
 
-		Analyst analyst = new Analyst(rawDataManager, roadInfoManager);
-		analyst.DoAnalysis();
-		analyst.WriteCSV("/Users/iswook/Documents/KICT/Output_TYPE-.csv", rdControllerA);
+		AnalysisManager analysisManager = new AnalysisManager(radarDataManager, roadInfoManager, BaseTargetType.MULTI_BASE_TARGET);
+		analysisManager.DoAnalysis();
+		analysisManager.WriteCSV("./Data/Output_TYPE-A.csv", DefaultFormatter.getInstance());
 
 		System.out.printf("############## END Analysis ##############\n");
 	}
