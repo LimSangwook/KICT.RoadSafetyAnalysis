@@ -5,6 +5,8 @@ public class AnalysisResultModel {
 	public double RAW_FRONT_SPPED_km_p_h = 0.0;
 	public double RAW_BETWEEN_DISTANCE = 0.0;
 	public double RAW_ACCEL = 0.0;
+	public double RAW_BACK_ACCEL_m_p_ss = 0.0;
+	public double RAW_FRONT_ACCEL_m_p_ss = 0.0;
 	
 	
 	public int 		SL = 0;			// 직선도로 제한속도 기준 안전판단  

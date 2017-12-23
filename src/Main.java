@@ -27,7 +27,12 @@ public class Main {
 
 		AnalysisManager analysisManager = new AnalysisManager(radarDataManager, roadInfoManager, BaseTargetType.MULTI_BASE_TARGET);
 		analysisManager.DoAnalysis();
-		analysisManager.WriteCSV("./Data/Output_TYPE-A.csv", DefaultFormatter.getInstance());
+		analysisManager.WriteCSV("/Users/limsangwook/eclipse-workspace/KICT_RoadSafetyAnalysis/Data/Output_TYPE.csv", DefaultFormatter.getInstance());
+		analysisManager.REPORT_2("/Users/limsangwook/eclipse-workspace/KICT_RoadSafetyAnalysis/Data/Output_2.TTC결과정리.csv");
+		analysisManager.REPORT_3("/Users/limsangwook/eclipse-workspace/KICT_RoadSafetyAnalysis/Data/Output_3.TTCe결과정리.csv");
+		analysisManager.REPORT_4("/Users/limsangwook/eclipse-workspace/KICT_RoadSafetyAnalysis/Data/Output_4.가중치 결과 정리.csv");
+		analysisManager.REPORT_6("/Users/limsangwook/eclipse-workspace/KICT_RoadSafetyAnalysis/Data/Output_6.가중치 비교.csv");
+		
 
 		System.out.printf("############## END Analysis ##############\n");
 	}

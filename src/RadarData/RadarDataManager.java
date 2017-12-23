@@ -24,7 +24,8 @@ public class RadarDataManager {
 		System.out.printf("####\t START \tRawDataReader.Read() " + path + "\n");
 		BufferedReader in = new BufferedReader(new FileReader(path));
 		String s;
-		int VALID_SPEED = 150; // VALID_SPEED 이상인 값은 버린다.
+		int VALID_MAX_SPEED = 150; // VALID_SPEED 이상인 값은 버린다.
+		int VALID_MIN_SPEED = 30; // 이하 버
 		int lineIdx = 0;
 		int dupGPSTimeCnt = 0;
 		int exceedSpeedCnt = 0;
@@ -56,8 +57,9 @@ public class RadarDataManager {
 				}
 				oldSpeed = newData.getSpeed();
 				oldGPSTime = newData.getGpsTime();
-				// 속도가 150KM 이상인것은 버린다.
-				if (newData.getSpeed() >= VALID_SPEED) {
+				// 속도가 150KM 이상인것은 버린다. 그리고 가속도 +-10m/s/s 이상인 것도 버린다.
+				if (newData.getSpeed() >= VALID_MAX_SPEED || newData.getSpeed() <= VALID_MIN_SPEED
+						|| newData.getCalACCEL() < -20 || newData.getCalACCEL() > 20) {
 					exceedSpeedCnt++;
 					continue;
 				}
@@ -74,7 +76,7 @@ public class RadarDataManager {
 			}
 		}
 		in.close();
-		System.out.printf("\t ReadLines : " + lineIdx + "\tSkipLines : " + controller.getSkipLines() + "\tValidData : " + validCnt + "\tParseError : " + parseErrorCnt + "\tDuplicated GPSTime : " + dupGPSTimeCnt + "\tExceedSpeed("+VALID_SPEED+") : " + exceedSpeedCnt + "\n");
+		System.out.printf("\t ReadLines : " + lineIdx + "\tSkipLines : " + controller.getSkipLines() + "\tValidData : " + validCnt + "\tParseError : " + parseErrorCnt + "\tDuplicated GPSTime : " + dupGPSTimeCnt + "\tExceedSpeed("+VALID_MAX_SPEED+") : " + exceedSpeedCnt + "\n");
 		System.out.printf("####\t END \tRawDataReader.Read() - RawData Data Size : " + datas.size() + "\n");
 	}
 }

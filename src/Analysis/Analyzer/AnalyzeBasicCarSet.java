@@ -12,7 +12,7 @@ import RoadInfo.RoadInfoManager;
 import RoadInfo.RoadInfoModel;
 import Utility.Util;
 
-public class AnalyzeBasicCarSet extends AnalyzerBase {
+public class AnalyzeBasicCarSet extends AnalyzeBase {
 	private BaseTargetType baseTargetType;
 	public static int MAX_COUNT_SET = 0;
 
@@ -33,15 +33,28 @@ public class AnalyzeBasicCarSet extends AnalyzerBase {
 		
 		ArrayList<ExtractCarSet> baseCarMultiSetList = getBaseCarSetList(analysisDataModel, baseCarRoadInfo);
 		setHeadway(analysisDataModel);
+		ArrayList<ExtractCarSet> removeSet = new ArrayList<ExtractCarSet>();
 		for (ExtractCarSet carSetData : baseCarMultiSetList) {
 			double BASE_SPEED_km_p_h = rawData.getSpeed(); 										// km 단위
 		    double TARGET_Y = rawData.getTrackDatas().get(carSetData.frontCarTrackIdx).Y;
 			double TARGET_SPEED_km_p_h = BASE_SPEED_km_p_h + rawData.getTrackDatas().get(carSetData.frontCarTrackIdx).RangeRate * 3.6; // 상대속 m/s
 		    AnalysisResultModel analysisResult = AnalysisCarInfo(baseCarRoadInfo, BASE_SPEED_km_p_h, TARGET_SPEED_km_p_h, TARGET_Y);
+		    // Data Cleansing!
+		    if (BASE_SPEED_km_p_h < 50 || BASE_SPEED_km_p_h > 150
+		    		|| analysisResult.TTC_T <= 0 
+		    		|| TARGET_SPEED_km_p_h < 30 || TARGET_SPEED_km_p_h > 200) {
+		    		removeSet.add(carSetData);
+		    }
+		    
 		    carSetData.analysisResult = analysisResult;
+		    carSetData.analysisResult.RAW_BACK_ACCEL_m_p_ss = rawData.getCalACCEL();
+		    carSetData.analysisResult.RAW_FRONT_ACCEL_m_p_ss = rawData.getTrackDatas().get(carSetData.frontCarTrackIdx).RangeAccel;
 		    carSetData.analysisResult.RAW_BACK_SPPED_km_p_h = BASE_SPEED_km_p_h;
 		    carSetData.analysisResult.RAW_FRONT_SPPED_km_p_h = TARGET_SPEED_km_p_h;
 		    carSetData.analysisResult.RAW_BETWEEN_DISTANCE = TARGET_Y;
+		}
+		for (ExtractCarSet carSetData : removeSet) {
+			baseCarMultiSetList.remove(carSetData);
 		}
 		analysisDataModel.setBaseCarSetList(baseCarMultiSetList);
 		MAX_COUNT_SET = Math.max(baseCarMultiSetList.size(), MAX_COUNT_SET);
@@ -82,6 +95,11 @@ public class AnalyzeBasicCarSet extends AnalyzerBase {
 			if (nowTrackData.isValid() == false) {
 				continue;
 			}
+			
+//			double SPEED_km_p_h = rawData.getSpeed() + rawData.getTrackDatas().get(idx).RangeRate * 3.6;
+//			if (SPEED_km_p_h < 30 || SPEED_km_p_h > 200) 
+//				continue;
+			
 			ExtractCarSet carSet = new ExtractCarSet();
 			carSet.backCarTrackIdx = 99;
 			carSet.frontCarTrackIdx = idx;

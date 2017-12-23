@@ -38,6 +38,8 @@ public class RadarDataModel {
 		public boolean isValid() {
 			if (this.Y == 0 && this.X == 0 ) 
 				return false;
+			if (RangeRate > 81.910003 && RangeRate < 81.910005)
+				return false;
 			return true;
 		}
 	}

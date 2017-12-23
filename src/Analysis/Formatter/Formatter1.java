@@ -10,12 +10,12 @@ import Analysis.Model.AnalysisResultModel;
 import Analysis.Model.ExtractCarSet;
 import RadarData.RadarDataModel;
 
-public class DefaultFormatter {
-	public static DefaultFormatter instance = null;
+public class Formatter1 {
+	public static Formatter1 instance = null;
 	
-	public static DefaultFormatter getInstance() {
+	public static Formatter1 getInstance() {
 		if (instance == null) {
-			instance = new DefaultFormatter();
+			instance = new Formatter1();
 		}
 		return instance;
 	}
@@ -23,8 +23,8 @@ public class DefaultFormatter {
 	public String getCSVFormatHeader() {
 		String header = getHeaderOfDefault()
 				+ ","+getHeaderOfTotalInfo()
-				+ ",,"+getHeaderOfBaseCarSet()
-				+ getHeaderOfExtractCarSet();
+				+ ","+getHeaderOfBaseCarSet()
+				+ ","+getHeaderOfExtractCarSet();
 		return header;
 	}
 
@@ -32,19 +32,18 @@ public class DefaultFormatter {
 		String csv = getCSVOfDefaultInfo(data) 
 				+ "," + getCSVOfTotalInfo(data)
 				+ "," + getCSVOfBaseCarSet(data)
-				+ getCSVOfExtractCarSet(data) + "\n";
+				+ "," + getCSVOfExtractCarSet(data) + "\n";
 		return csv;
 	}
 
 	private String getHeaderOfDefault() {
-		return "Index(distance),time(progress),week,GPSrealtime,Latitide,Longitide,Roll,Pitch,Azimouth,Distance(m),차량속도(km/h),ALIGN_RADIUS,PROFILE_SLOPE,CROSS_SLOPE_UP,H(headway)";
+		return "Index(distance),time(progress),week,GPSrealtime,Latitide,Longitide,Distance(m),차량속도(km/h),ALIGN_RADIUS,PROFILE_SLOPE,CROSS_SLOPE_UP,H(headway)";
 	}
 	private String getCSVOfDefaultInfo(AnalysisDataModel data) {
 		RadarDataModel rawData = data.getRawData();
 		return rawData.getIndex() + "," + rawData.getTime() 
 				+ "," + rawData.getWeek() + "," + rawData.getGpsTime() 
-				+ "," + rawData.getLatitude() + "," + rawData.getLongitude()
-				+ "," + rawData.getRoll() + "," + rawData.getPitch() + "," + rawData.getAzimouth()
+				+ "," + rawData.getLatitude() + "," + rawData.getLongitude() 
 				+ "," + rawData.getDistance() + "," + rawData.getSpeed() 
 				+ "," + data.getALIGN_RADIUS() + "," + data.getPROFILE_SLOPE() 
 				+ "," + data.getCROSS_SLOPE_UP() + "," + data.getHEADWAY();
@@ -77,7 +76,7 @@ public class DefaultFormatter {
 	}
 	
 	private String getHeaderOfBaseCarSet() {
-		String defaultHeader = "추종 후행,추종 선행,추종후행 가속도(m/s/s),추종선행 가속도(m/s/s),후행 속도(km/h),선행 속도(km/h),차량간 거리,후행차량정지거리,선행차량정지거리,TTC 시간,TTCw, WeightedAverage , Uniform ,Triweight,Gaussian, WeightedAverage*TTCw,Uniform*TTCw,Triweight*TTCw,Gaussian*TTCw,";
+		String defaultHeader = "추종 후행,추종 선행,후행 속도(km/h),선행 속도(km/h),차량간 거리,후행차량정지거리,선행차량정지거리,TTC 시간,EXP_TTCw, WeightedAverage TTCw, Uniform TTCw,Triweight TTCw,Gaussian TTCw,";
 		StringBuilder ret = new StringBuilder();
 		for (int i = 0 ; i < AnalyzeBasicCarSet.MAX_COUNT_SET ; i++) {
 			ret.append(defaultHeader);
@@ -93,7 +92,7 @@ public class DefaultFormatter {
 	}
 
 	private String getHeaderOfExtractCarSet() {
-		String defaultHeader = "추종 후행,추종 선행,추종후행 가속도(m/s/s),추종선행 가속도(m/s/s),,후행 속도(km/h),선행 속도(km/h),차량간 거리,후행차량정지거리,선행차량정지거리,TTC 시간,TTCw, WeightedAverage , Uniform ,Triweight,Gaussian, WeightedAverage*TTCw,Uniform*TTCw,Triweight*TTCw,Gaussian*TTCw,";
+		String defaultHeader = "추종 후행,추종 선행,후행 속도(km/h),선행 속도(km/h),차량간 거리,후행차량정지거리,선행차량정지거리,TTC 시간,EXP_TTCw, WeightedAverage TTC, Uniform TTCw,Triweight TTCw,Gaussian TTCw,";
 		StringBuilder ret = new StringBuilder();
 		for (int i = 0 ; i < AnalyzeExtractCarSet.MAX_COUNT_SET ; i++) {
 			ret.append(defaultHeader);
@@ -111,11 +110,10 @@ public class DefaultFormatter {
 
 	private String getCSVOfCarSet(ArrayList<ExtractCarSet> carSetList) {
 		StringBuilder str = new StringBuilder();
+		boolean isFirst = true;
 		for (ExtractCarSet carSet : carSetList) {
-			str.append(",").append(carSet.getBackCarTrackIdx())
+			str.append(isFirst ? "" : ",").append(carSet.getBackCarTrackIdx())
 				.append("," + carSet.getFrontCarTrackIdx())
-				.append("," + carSet.getAnalysisResult().RAW_BACK_ACCEL_m_p_ss)
-				.append("," + carSet.getAnalysisResult().RAW_FRONT_ACCEL_m_p_ss)
 				.append("," + carSet.getAnalysisResult().RAW_BACK_SPPED_km_p_h)
 				.append("," + carSet.getAnalysisResult().RAW_FRONT_SPPED_km_p_h)
 				.append("," + carSet.getAnalysisResult().RAW_BETWEEN_DISTANCE)
@@ -126,11 +124,8 @@ public class DefaultFormatter {
 				.append("," + carSet.getAnalysisResult().TTC_Weighted_Average)
 				.append("," + carSet.getAnalysisResult().TTC_Uniform_Kernel)
 				.append("," + carSet.getAnalysisResult().TTC_Triweight_Kernel)
-				.append("," + carSet.getAnalysisResult().TTC_Gaussian_Kernel)
-				.append("," + carSet.getAnalysisResult().TTC_Weighted_Average * carSet.getAnalysisResult().TTC_EXP)
-				.append("," + carSet.getAnalysisResult().TTC_Uniform_Kernel * carSet.getAnalysisResult().TTC_EXP)
-				.append("," + carSet.getAnalysisResult().TTC_Triweight_Kernel * carSet.getAnalysisResult().TTC_EXP)
-				.append("," + carSet.getAnalysisResult().TTC_Gaussian_Kernel * carSet.getAnalysisResult().TTC_EXP);;
+				.append("," + carSet.getAnalysisResult().TTC_Gaussian_Kernel);
+			isFirst=false;
 		}
 		return str.toString();
 	}

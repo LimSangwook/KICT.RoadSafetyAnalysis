@@ -13,7 +13,7 @@ import RoadInfo.RoadInfoManager;
 import Utility.Util;
 import Utility.Util.Deg2UTM;
 
-public class AnalyzeExtractCarSet extends AnalyzerBase {
+public class AnalyzeExtractCarSet extends AnalyzeBase {
 	public static int MAX_COUNT_SET = 0;
 	@Override
 	protected void process(AnalysisDataModel analysisDataModel, RoadInfoManager roadInfoMGR) {
@@ -21,7 +21,7 @@ public class AnalyzeExtractCarSet extends AnalyzerBase {
 			return;
 		RadarDataModel rawData = analysisDataModel.getRawData();
 		ArrayList<ExtractCarSet> extractCarSetList = GetExtractCarSetList(analysisDataModel);
-		analysisDataModel.setExtractCarSetList(extractCarSetList);
+		ArrayList<ExtractCarSet> removeSet = new ArrayList<ExtractCarSet>();
 		for (ExtractCarSet carSetData : extractCarSetList) {
 			TrackData backCarTrackData = rawData.getTrackDatas().get(carSetData.backCarTrackIdx);
 			// 방위각이 있으면 정확히 체크한다.
@@ -33,19 +33,32 @@ public class AnalyzeExtractCarSet extends AnalyzerBase {
 				double newY = (x) * Math.sin(AzimouthRadian) + (y) * Math.cos(AzimouthRadian);
 				Deg2UTM deg2UTM = new Deg2UTM(rawData.getLatitude(), rawData.getLongitude());
 				carSetData.roadInfoData = roadInfoMGR.GetRoadInfoFromUTM(deg2UTM.Easting + newX, deg2UTM.Northing + newY);
-			} else {
+			} 
+			if (carSetData.roadInfoData == null) {
 				carSetData.roadInfoData = analysisDataModel.getBaseCarRoadInfo();
 			}
 			
             double BASE_SPEED_km_p_h = rawData.getSpeed() + rawData.getTrackDatas().get(carSetData.backCarTrackIdx).RangeRate * 3.6;   // km/h 로 바꿔준다.
             double TARGET_Y = rawData.getTrackDatas().get(carSetData.frontCarTrackIdx).Y - rawData.getTrackDatas().get(carSetData.backCarTrackIdx).Y + CAR_LENGTH;
             double TARGET_SPEED_km_p_h = rawData.getSpeed() + rawData.getTrackDatas().get(carSetData.frontCarTrackIdx).RangeRate * 3.6;						// km/h 단위
-            
             carSetData.analysisResult = AnalysisCarInfo(carSetData.roadInfoData, BASE_SPEED_km_p_h, TARGET_SPEED_km_p_h, TARGET_Y);
+		    // Data Cleansing!
+		    if (TARGET_SPEED_km_p_h < 30
+		    		|| carSetData.analysisResult.TTC_T <= 0 
+		    		|| BASE_SPEED_km_p_h > 200) {
+		    		removeSet.add(carSetData);
+		    }
+		    carSetData.analysisResult.RAW_BACK_ACCEL_m_p_ss = rawData.getTrackDatas().get(carSetData.backCarTrackIdx).RangeAccel;
+		    carSetData.analysisResult.RAW_FRONT_ACCEL_m_p_ss = rawData.getTrackDatas().get(carSetData.frontCarTrackIdx).RangeAccel;
 		    carSetData.analysisResult.RAW_BACK_SPPED_km_p_h = BASE_SPEED_km_p_h;
 		    carSetData.analysisResult.RAW_FRONT_SPPED_km_p_h = TARGET_SPEED_km_p_h;
 		    carSetData.analysisResult.RAW_BETWEEN_DISTANCE = TARGET_Y;
 		}
+		for (ExtractCarSet carSetData : removeSet) {
+			extractCarSetList.remove(carSetData);
+		}
+		analysisDataModel.setExtractCarSetList(extractCarSetList);
+
 		MAX_COUNT_SET = Math.max(extractCarSetList.size(), MAX_COUNT_SET);
 	}
 	
@@ -57,7 +70,6 @@ public class AnalyzeExtractCarSet extends AnalyzerBase {
 		for (int trackIdx = 0 ; trackIdx < rawData.getTrackDatas().size() ; trackIdx++) {
 			TrackData nowTrackData = rawData.getTrackDatas().get(trackIdx);
 			if (nowTrackData.isValid() == false) {
-				trackIdx++;
 				continue;
 			}
 			int lane = Util.getRelativeLaneNumber(nowTrackData.X);
@@ -68,7 +80,6 @@ public class AnalyzeExtractCarSet extends AnalyzerBase {
 			} else {
 				carSetMap.get(lane).add(trackIdx);
 			}
-			trackIdx++;
 		}
 		
         //2개 이상 모인것은 쌍으로 추출해 냄

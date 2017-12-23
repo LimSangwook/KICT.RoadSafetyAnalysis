@@ -16,10 +16,24 @@ public class AnalysisDataModel {
 	public double BASE_DISTANCE = 0.0; // 주행차량과의 거리 
 
 	// Total Info
-	int TOT_CD = 0;						// 추종 추종 갯수				
+	int TOT_CD = 0;						// 추종 추종 갯수
+	int TOT_BASE_CD = 0;					// 주행차량과 추종 갯수 
+	int TOT_EXTRA_CD = 0;				// 선행차량들과의 추종 갯수 
 	AnalysisResultModel TOT_AnalysisResult;	// 모든 추종 처리 결과 합
 	String TOT_SECTION = "";			// IC기반 구역 
 	
+	public int getTOT_BASE_CD() {
+		return TOT_BASE_CD;
+	}
+	public void setTOT_BASE_CD(int tOT_BASE_CD) {
+		TOT_BASE_CD = tOT_BASE_CD;
+	}
+	public int getTOT_EXTRA_CD() {
+		return TOT_EXTRA_CD;
+	}
+	public void setTOT_EXTRA_CD(int tOT_EXTRA_CD) {
+		TOT_EXTRA_CD = tOT_EXTRA_CD;
+	}
 	public double getHeadway() {
 		return headway;
 	}
