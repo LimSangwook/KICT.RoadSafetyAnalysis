@@ -9,11 +9,13 @@ public class Main {
 	public static void main(String[] args) throws Exception {
 		System.out.printf("############## START Analysis ##############\n");
 
+		// RawData 설정 
 		RadarDataManager radarDataManager = new RadarDataManager();
 		radarDataManager.add("./Data/RadarA_Type/01_radar.csv", RadarDataController.TYPE.A);
 		radarDataManager.add("./Data/RadarA_Type/02_radar.csv", RadarDataController.TYPE.A);
 		radarDataManager.add("./Data/RadarA_Type/03_radar.csv", RadarDataController.TYPE.A);
 
+		//AN Data(도로데이터) 설정 
 		RoadInfoManager roadInfoManager = new RoadInfoManager();
 		roadInfoManager.add("./Data/AN/01_an.csv");
 		roadInfoManager.add("./Data/AN/02_an.csv");
@@ -27,12 +29,11 @@ public class Main {
 
 		AnalysisManager analysisManager = new AnalysisManager(radarDataManager, roadInfoManager, BaseTargetType.MULTI_BASE_TARGET);
 		analysisManager.DoAnalysis();
-		analysisManager.WriteCSV("/Users/limsangwook/eclipse-workspace/KICT_RoadSafetyAnalysis/Data/Output_TYPE.csv", DefaultFormatter.getInstance());
-		analysisManager.REPORT_2("/Users/limsangwook/eclipse-workspace/KICT_RoadSafetyAnalysis/Data/Output_2.TTC결과정리.csv");
-		analysisManager.REPORT_3("/Users/limsangwook/eclipse-workspace/KICT_RoadSafetyAnalysis/Data/Output_3.TTCe결과정리.csv");
-		analysisManager.REPORT_4("/Users/limsangwook/eclipse-workspace/KICT_RoadSafetyAnalysis/Data/Output_4.가중치 결과 정리.csv");
-		analysisManager.REPORT_6("/Users/limsangwook/eclipse-workspace/KICT_RoadSafetyAnalysis/Data/Output_6.가중치 비교.csv");
-		
+		analysisManager.WriteCSV("/Users/limsangwook/eclipse-workspace/KICT_RoadSafetyAnalysis/Data/Output/Output_TYPE.csv", DefaultFormatter.getInstance());
+		analysisManager.REPORT_2("/Users/limsangwook/eclipse-workspace/KICT_RoadSafetyAnalysis/Data/Output/Output_2.TTC결과정리.csv");
+		analysisManager.REPORT_3("/Users/limsangwook/eclipse-workspace/KICT_RoadSafetyAnalysis/Data/Output/Output_3.TTCe결과정리.csv");
+		analysisManager.REPORT_4("/Users/limsangwook/eclipse-workspace/KICT_RoadSafetyAnalysis/Data/Output/Output_4.가중치 결과 정리.csv");
+		analysisManager.REPORT_6("/Users/limsangwook/eclipse-workspace/KICT_RoadSafetyAnalysis/Data/Output/Output_6.가중치 비교.csv");
 
 		System.out.printf("############## END Analysis ##############\n");
 	}
